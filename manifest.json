@@ -1,0 +1,48 @@
+{
+  "name": "विद्यार्थी मूल्याङ्कन अभिलेख प्रणाली",
+  "short_name": "मूल्याङ्कन",
+  "description": "कक्षा १-५ को विद्यार्थी मूल्याङ्कन अभिलेख प्रणाली",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1d4ed8",
+  "theme_color": "#1d4ed8",
+  "lang": "ne",
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "मूल्याङ्कन गर्नुहोस्",
+      "short_name": "मूल्याङ्कन",
+      "url": "./index.html#assessment",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "प्रतिवेदन",
+      "short_name": "प्रतिवेदन",
+      "url": "./index.html#reports",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

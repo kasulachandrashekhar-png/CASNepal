@@ -4,7 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>विद्यार्थी मूल्याङ्कन अभिलेख प्रणाली (कक्षा १-५)</title>
+      <!-- ===== PWA Meta Tags ===== -->
+    <meta name="description" content="कक्षा १-५ को विद्यार्थी मूल्याङ्कन अभिलेख प्रणाली">
+    <meta name="theme-color" content="#1d4ed8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="मूल्याङ्कन">
+    <meta name="application-name" content="मूल्याङ्कन">
     
+    <!-- Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
+    
+    <!-- iOS Splash (optional) -->
+    <link rel="apple-touch-startup-image" href="./icons/icon-512.png">
    <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
     import { 
@@ -369,17 +387,24 @@
     </aside>
 
     <div id="main-content">
-        <header class="no-print">
-            <div class="header-title-area">
-                <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-                <h2 id="page-title">ड्यासबोर्ड</h2>
-            </div>
-            <div class="header-actions">
-                <span id="header-school-name">विद्यालय</span>
-                <span class="badge badge-success">सत्र: <span id="header-year">--</span></span>
-            </div>
-        </header>
-
+       <header class="no-print">
+    <div class="header-title-area">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <h2 id="page-title">ड्यासबोर्ड</h2>
+    </div>
+    <div class="header-actions">
+        <span id="header-school-name">विद्यालय</span>
+        <span class="badge badge-success">सत्र: <span id="header-year">--</span></span>
+        
+        <!-- Install button — mobile मा मात्र देखिने -->
+        <button id="pwa-install-btn" 
+                onclick="installPWA()" 
+                class="btn btn-primary btn-sm"
+                style="display:none;">
+            📱 Install
+        </button>
+    </div>
+</header>
         <div class="content-area">
             <!-- DASHBOARD -->
             <section id="dashboard" class="view-section active">
@@ -2983,6 +3008,66 @@ window.addEventListener('DOMContentLoaded', async () => {
             </div>`;
     }
 });
+// ============================================================
+// PWA — Service Worker Registration
+// ============================================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+            .then((registration) => {
+                console.log('✅ Service Worker registered:', registration.scope);
+                
+                // Update check
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            // नयाँ version available
+                            showToast('🔄 नयाँ version उपलब्ध छ — refresh गर्नुहोस्', 'info');
+                        }
+                    });
+                });
+            })
+            .catch((error) => {
+                console.warn('⚠️ Service Worker registration failed:', error);
+            });
+    });
+}
+
+// PWA Install Prompt
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    console.log('📱 PWA install prompt ready');
+    
+    // Install button देखाउने (यदि चाहनुहुन्छ भने)
+    const installBtn = document.getElementById('pwa-install-btn');
+    if (installBtn) installBtn.style.display = 'inline-flex';
+});
+
+window.addEventListener('appinstalled', () => {
+    console.log('✅ PWA installed successfully');
+    showToast('✅ App install भयो!', 'success');
+    deferredPrompt = null;
+});
+
+// Install function — button बाट call गर्ने
+async function installPWA() {
+    if (!deferredPrompt) {
+        showToast('Install विकल्प उपलब्ध छैन — browser menu बाट install गर्नुहोस्', 'info');
+        return;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log('Install outcome:', outcome);
+    deferredPrompt = null;
+}
+
+// Online/Offline status
+window.addEventListener('online', () => showToast('🌐 Online', 'success'));
+window.addEventListener('offline', () => showToast('📴 Offline mode — data sync हुनेछ', 'warning'));
 </script>
 </body>
 </html>
